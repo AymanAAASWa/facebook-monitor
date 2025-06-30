@@ -681,7 +681,7 @@ export default function FacebookMonitor() {
         customer.posts.length.toString(),
         customer.lastContact.toLocaleDateString("ar-EG"),
         customer.notes,
-      ].map((val) => '"${val.toString().replace(/"/g, '""')}"')
+      ].map((val) => `"${val.toString().replace(/"/g, '""')}"`)
       csvRows.push(values.join(","))
     })
 
