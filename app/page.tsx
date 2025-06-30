@@ -244,7 +244,7 @@ export default function FacebookMonitor() {
       setCustomers((prev) => [...prev, newCustomer])
 
       if (score > 20) {
-        showNotification("عميل محتمل مهم!", '${post.from.name} - نقاط: ${score}')
+        showNotification("عميل محتمل مهم!", `${post.from.name} - نقاط: ${score}`)
       }
     }
   }
@@ -278,7 +278,7 @@ export default function FacebookMonitor() {
         const text = await readFileAsText(file)
         const ids = JSON.parse(text.trim())
         setGroupIds(ids)
-        setLoadingStatus('✅ تم تحميل ${ids.length} معرف جروب')
+        setLoadingStatus(`✅ تم تحميل ${ids.length} معرف جروب`)
       } catch (error) {
         alert("خطأ في قراءة ملف معرفات الجروبات")
       }
@@ -289,7 +289,7 @@ export default function FacebookMonitor() {
     const file = e.target.files?.[0]
     if (file) {
       setPhoneFile(file)
-      setLoadingStatus('✅ تم تحديد ملف المستخدمين: ${(file.size / (1024 * 1024 * 1024)).toFixed(2)} جيجا')
+      setLoadingStatus(`✅ تم تحديد ملف المستخدمين: ${(file.size / (1024 * 1024 * 1024)).toFixed(2)} جيجا`)
     }
   }
 
@@ -300,7 +300,7 @@ export default function FacebookMonitor() {
         const text = await readFileAsText(file)
         const keywords = JSON.parse(text.trim())
         setKeywordFilters(keywords)
-        setLoadingStatus('✅ تم تحميل ${keywords.length} كلمة مفتاحية للفلترة')
+        setLoadingStatus(`✅ تم تحميل ${keywords.length} كلمة مفتاحية للفلترة`)
       } catch (error) {
         alert("خطأ في قراءة ملف الكلمات المفتاحية")
       }
@@ -311,13 +311,13 @@ export default function FacebookMonitor() {
     if (newKeyword.trim() && !keywordFilters.includes(newKeyword.trim())) {
       setKeywordFilters([...keywordFilters, newKeyword.trim()])
       setNewKeyword("")
-      setLoadingStatus('✅ تم إضافة الكلمة: ${newKeyword.trim()}')
+      setLoadingStatus(`✅ تم إضافة الكلمة: ${newKeyword.trim()}`)
     }
   }
 
   const removeKeyword = (keyword: string) => {
     setKeywordFilters(keywordFilters.filter((k) => k !== keyword))
-    setLoadingStatus('❌ تم حذف الكلمة: ${keyword}')
+    setLoadingStatus(`❌ تم حذف الكلمة: ${keyword}`)
   }
 
   const downloadKeywords = () => {
@@ -380,7 +380,7 @@ export default function FacebookMonitor() {
         buffer = lines.pop() || ""
 
         for (const line of lines) {
-          if (line.trim() && line.includes('"${userId}"')) {
+          if (line.trim() && line.includes(`"${userId}"`)) {
             try {
               const cleanLine = line.trim().replace(/,$/, "")
               const parsed = JSON.parse(cleanLine)
@@ -412,24 +412,24 @@ export default function FacebookMonitor() {
   const fetchGroupName = async (groupId: string): Promise<string> => {
     try {
       const response = await fetch(
-        '/api/facebook?groupId=${groupId}&accessToken=${encodeURIComponent(accessToken)}&action=name',
+        `/api/facebook?groupId=${groupId}&accessToken=${encodeURIComponent(accessToken)}&action=name`,
       )
 
       if (!response.ok) {
-        console.warn('⚠️ لا يمكن جلب اسم الجروب ${groupId}: ${response.status}')
+        console.warn(`⚠️ لا يمكن جلب اسم الجروب ${groupId}: ${response.status}`)
         return groupId
       }
 
       const data = await response.json()
 
       if (data.error) {
-        console.warn('⚠️ خطأ في جلب اسم الجروب:', data.error)
+        console.warn(`⚠️ خطأ في جلب اسم الجروب:`, data.error)
         return groupId
       }
 
       return data.name || groupId
     } catch (error) {
-      console.warn('⚠️ خطأ في جلب اسم الجروب ${groupId}:', error)
+      console.warn(`⚠️ خطأ في جلب اسم الجروب ${groupId}:`, error)
       return groupId
     }
   }
@@ -460,32 +460,32 @@ export default function FacebookMonitor() {
       for (let i = 0; i < groupIds.length; i++) {
         const groupId = groupIds[i]
         if (!isAutoUpdate) {
-          setLoadingStatus('📡 جاري تحميل الجروب ${i + 1}/${groupIds.length}: ${groupId}')
+          setLoadingStatus(`📡 جاري تحميل الجروب ${i + 1}/${groupIds.length}: ${groupId}`)
         }
 
         try {
           const groupName = await fetchGroupName(groupId)
           if (!isAutoUpdate) {
-            setLoadingStatus('✅ اسم الجروب: ${groupName}')
+            setLoadingStatus(`✅ اسم الجروب: ${groupName}`)
           }
 
-          let url = '/api/facebook?groupId=${groupId}&accessToken=${encodeURIComponent(accessToken)}&action=posts'
+          let url = `/api/facebook?groupId=${groupId}&accessToken=${encodeURIComponent(accessToken)}&action=posts`
           if (isLoadMore && nextPageTokens[groupId]) {
-            url += '&after=${nextPageTokens[groupId]}'
+            url += `&after=${nextPageTokens[groupId]}`
           }
 
           const response = await fetch(url)
 
           if (!response.ok) {
             const errorData = await response.json()
-            console.error('❌ خطأ في API للجروب ${groupId}:', errorData)
+            console.error(`❌ خطأ في API للجروب ${groupId}:`, errorData)
             continue
           }
 
           const data = await response.json()
 
           if (data.error) {
-            console.error('❌ خطأ من Facebook API:', data.error)
+            console.error(`❌ خطأ من Facebook API:`, data.error)
             continue
           }
 
@@ -499,7 +499,7 @@ export default function FacebookMonitor() {
 
           if (data.data && data.data.length > 0) {
             if (!isAutoUpdate) {
-              setLoadingStatus('📝 تم العثور على ${data.data.length} منشور')
+              setLoadingStatus(`📝 تم العثور على ${data.data.length} منشور`)
             }
 
             for (const post of data.data) {
@@ -542,7 +542,7 @@ export default function FacebookMonitor() {
             }
           }
         } catch (groupError) {
-          console.error('❌ خطأ في معالجة الجروب ${groupId}:', groupError)
+          console.error(`❌ خطأ في معالجة الجروب ${groupId}:`, groupError)
         }
       }
 
@@ -550,14 +550,14 @@ export default function FacebookMonitor() {
         setPosts((prev) => [...prev, ...allPosts])
         setAllPostsData((prev) => [...prev, ...newPostsData])
         setAllCommentsData((prev) => [...prev, ...newCommentsData])
-        setLoadingStatus('✅ تم تحميل ${allPosts.length} منشور إضافي')
+        setLoadingStatus(`✅ تم تحميل ${allPosts.length} منشور إضافي`)
       } else {
         setPosts(allPosts)
         setAllPostsData(newPostsData)
         setAllCommentsData(newCommentsData)
         if (!isAutoUpdate) {
           setLoadingStatus(
-            '✅ تم تحميل ${allPosts.length} منشور و ${newCommentsData.length} تعليق من ${groupIds.length} جروب',
+            `✅ تم تحميل ${allPosts.length} منشور و ${newCommentsData.length} تعليق من ${groupIds.length} جروب`,
           )
         }
       }
@@ -568,7 +568,7 @@ export default function FacebookMonitor() {
       if (isAutoUpdate && allPosts.length > 0) {
         const highScorePosts = allPosts.filter((post) => calculatePostScore(post) > 15)
         if (highScorePosts.length > 0) {
-          showNotification("منشورات جديدة مهمة!", 'تم العثور على ${highScorePosts.length} منشور مهم')
+          showNotification("منشورات جديدة مهمة!", `تم العثور على ${highScorePosts.length} منشور مهم`)
         }
       }
 
@@ -578,7 +578,7 @@ export default function FacebookMonitor() {
     } catch (error) {
       console.error("❌ خطأ عام في تحميل المنشورات:", error)
       if (!isAutoUpdate) {
-        setLoadingStatus('❌ خطأ في تحميل المنشورات: ${error.message}')
+        setLoadingStatus(`❌ خطأ في تحميل المنشورات: ${error.message}`)
       }
     } finally {
       if (isLoadMore) {
@@ -603,19 +603,19 @@ export default function FacebookMonitor() {
       setLoading(true)
       setLoadingStatus("🔑 جاري اختبار التوكن...")
 
-      const response = await fetch('/api/facebook?accessToken=${encodeURIComponent(accessToken)}&action=test')
+      const response = await fetch(`/api/facebook?accessToken=${encodeURIComponent(accessToken)}&action=test`)
       const data = await response.json()
 
       if (data.error) {
-        alert('❌ التوكن غير صحيح: ${data.error.message}')
-        setLoadingStatus('❌ التوكن غير صحيح: ${data.error.message}')
+        alert(`❌ التوكن غير صحيح: ${data.error.message}`)
+        setLoadingStatus(`❌ التوكن غير صحيح: ${data.error.message}`)
       } else {
-        alert('✅ التوكن صحيح! مرحباً ${data.name || "مستخدم"}')
-        setLoadingStatus('✅ التوكن صحيح! مرحباً ${data.name || "مستخدم"}')
+        alert(`✅ التوكن صحيح! مرحباً ${data.name || "مستخدم"}`)
+        setLoadingStatus(`✅ التوكن صحيح! مرحباً ${data.name || "مستخدم"}`)
       }
     } catch (error) {
-      alert('❌ خطأ في اختبار التوكن: ${error.message}')
-      setLoadingStatus('❌ خطأ في اختبار التوكن: ${error.message}')
+      alert(`❌ خطأ في اختبار التوكن: ${error.message}`)
+      setLoadingStatus(`❌ خطأ في اختبار التوكن: ${error.message}`)
     } finally {
       setLoading(false)
     }
@@ -639,7 +639,6 @@ export default function FacebookMonitor() {
         "",
         score.toString(),
       ].map((val) => `"${val.toString().replace(/"/g, '""')}"`)
-
       csvRows.push(values.join(","))
     })
 
@@ -655,7 +654,6 @@ export default function FacebookMonitor() {
         row.postId,
         "0",
       ].map((val) => `"${val.toString().replace(/"/g, '""')}"`)
-
       csvRows.push(values.join(","))
     })
 
@@ -722,9 +720,9 @@ export default function FacebookMonitor() {
     const matchesSearch = message.includes(searchText) || authorName.includes(searchText) || comments
 
     // Keyword filter
-    const postText = '${post.message || ""} ${post.from?.name || ""}'
-    const commentTexts = post.comments?.data?.map((c) => '${c.message} ${c.from?.name || ""}').join(" ") || ""
-    const allText = '${postText} ${commentTexts}'
+    const postText = `${post.message || ""} ${post.from?.name || ""}`
+    const commentTexts = post.comments?.data?.map((c) => `${c.message} ${c.from?.name || ""}`).join(" ") || ""
+    const allText = `${postText} ${commentTexts}`
     const matchesKeywords = containsKeywords(allText)
 
     return matchesSearch && matchesKeywords
@@ -760,9 +758,9 @@ export default function FacebookMonitor() {
     setSearchingPhones((prev) => new Set(prev).add(authorId))
 
     try {
-      setLoadingStatus('🔍 جاري البحث عن رقم هاتف: ${authorName}')
+      setLoadingStatus(`🔍 جاري البحث عن رقم هاتف: ${authorName}`)
       const phone = await searchPhoneInFile(authorId)
-      setLoadingStatus('✅ تم العثور على الرقم: ${phone}')
+      setLoadingStatus(`✅ تم العثور على الرقم: ${phone}`)
 
       if (isComment) {
         setAllCommentsData((prev) =>
@@ -780,7 +778,7 @@ export default function FacebookMonitor() {
 
       return phone
     } catch (error) {
-      setLoadingStatus('❌ خطأ في البحث عن رقم الهاتف')
+      setLoadingStatus(`❌ خطأ في البحث عن رقم الهاتف`)
       return "غير معروف"
     } finally {
       setSearchingPhones((prev) => {
@@ -794,7 +792,7 @@ export default function FacebookMonitor() {
   const formatCountdown = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
-    return '${minutes}:${remainingSeconds.toString().padStart(2, "0")}'
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
   }
 
   const getAnalytics = () => {
@@ -881,17 +879,10 @@ export default function FacebookMonitor() {
   )
 
   return (
-    <div
-      className={`min-h-screen p-4 transition-colors ${
-        darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 to-indigo-100'
-      }`}
-      dir="rtl"
-    >  <p>تجربة</p>
-  dir="rtl">
+    <div className={`min-h-screen p-4 transition-colors ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 to-indigo-100'}`} dir="rtl">
       <div className="max-w-7xl mx-auto">
-	
         {/* Header */}
-        <Card className={'mb-6 shadow-lg border-0 ${darkMode ? 'bg-gray-800' : 'bg-white/80'} backdrop-blur-sm'}>
+        <Card className={`mb-6 shadow-lg border-0 ${darkMode ? 'bg-gray-800' : 'bg-white/80'} backdrop-blur-sm`}>
           <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -929,7 +920,7 @@ export default function FacebookMonitor() {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className={'grid w-full grid-cols-4 ${darkMode ? 'bg-gray-800' : 'bg-white'}'}>
+          <TabsList className={`grid w-full grid-cols-4 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
             <TabsTrigger value="posts" className="flex items-center gap-2">
               <MessageCircle className="w-4 h-4" />
               المنشورات
@@ -951,11 +942,11 @@ export default function FacebookMonitor() {
           {/* Posts Tab */}
           <TabsContent value="posts" className="space-y-6">
             {/* File Upload Section */}
-            <Card className={'shadow-lg border-0 ${darkMode ? 'bg-gray-800' : 'bg-white/80'} backdrop-blur-sm'}>
+            <Card className={`shadow-lg border-0 ${darkMode ? 'bg-gray-800' : 'bg-white/80'} backdrop-blur-sm`}>
               <CardContent className="space-y-6 p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <div className="space-y-2">
-                    <Label htmlFor="tokenFile" className={'flex items-center gap-2 font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}'}>
+                    <Label htmlFor="tokenFile" className={`flex items-center gap-2 font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       <Upload className="w-4 h-4" />📄 ملف التوكن
                     </Label>
                     <Input
@@ -969,7 +960,7 @@ export default function FacebookMonitor() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="groupFile" className={'flex items-center gap-2 font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}'}>
+                    <Label htmlFor="groupFile" className={`flex items-center gap-2 font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       <Upload className="w-4 h-4" />📄 ملف الجروبات
                     </Label>
                     <Input
@@ -983,7 +974,7 @@ export default function FacebookMonitor() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="phoneFile" className={'flex items-center gap-2 font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}'}>
+                    <Label htmlFor="phoneFile" className={`flex items-center gap-2 font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       <Upload className="w-4 h-4" />📄 ملف المستخدمين
                     </Label>
                     <Input
@@ -997,7 +988,7 @@ export default function FacebookMonitor() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="keywordFile" className={'flex items-center gap-2 font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}'}>
+                    <Label htmlFor="keywordFile" className={`flex items-center gap-2 font-semibold ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       <Upload className="w-4 h-4" />🔍 ملف الكلمات المفتاحية
                     </Label>
                     <Input
@@ -1012,7 +1003,7 @@ export default function FacebookMonitor() {
                 </div>
 
                 {loadingStatus && (
-                  <div className={'text-center p-4 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-300' : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 text-blue-800'}'}>
+                  <div className={`text-center p-4 rounded-lg border ${darkMode ? 'bg-gray-700 border-gray-600 text-gray-300' : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 text-blue-800'}`}>
                     <p className="font-medium">{loadingStatus}</p>
                   </div>
                 )}
@@ -1024,7 +1015,7 @@ export default function FacebookMonitor() {
                     disabled={loading}
                     className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                   >
-                    <RefreshCw className={'w-4 h-4 ${loading ? "animate-spin" : ""}'} />
+                    <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
                     {loading ? "جاري التحميل..." : "🔁 تحميل المنشورات"}
                   </Button>
 
@@ -1058,7 +1049,7 @@ export default function FacebookMonitor() {
                 {/* Advanced Filters */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t">
                   <div className="space-y-2">
-                    <Label className={'text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}'}>فلترة بالتاريخ</Label>
+                    <Label className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>فلترة بالتاريخ</Label>
                     <Select value={dateFilter} onValueChange={setDateFilter}>
                       <SelectTrigger>
                         <SelectValue />
@@ -1073,7 +1064,7 @@ export default function FacebookMonitor() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className={'text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}'}>الحد الأدنى للنقاط</Label>
+                    <Label className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>الحد الأدنى للنقاط</Label>
                     <Input
                       type="number"
                       value={scoreFilter}
@@ -1084,7 +1075,7 @@ export default function FacebookMonitor() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className={'text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}'}>بحث متقدم</Label>
+                    <Label className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>بحث متقدم</Label>
                     <div className="flex items-center space-x-2">
                       <Switch
                         checked={regexSearch}
@@ -1095,7 +1086,7 @@ export default function FacebookMonitor() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className={'text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}'}>المنشورات المحفوظة</Label>
+                    <Label className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>المنشورات المحفوظة</Label>
                     <Badge variant="secondary" className="w-full justify-center">
                       {savedPosts.size} منشور محفوظ
                     </Badge>
@@ -1112,7 +1103,7 @@ export default function FacebookMonitor() {
                 placeholder="🔍 ابحث في المنشورات والتعليقات..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className={'pr-12 h-12 text-lg border-2 focus:border-blue-500 rounded-xl shadow-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'border-gray-300'}'}
+                className={`pr-12 h-12 text-lg border-2 focus:border-blue-500 rounded-xl shadow-sm ${darkMode ? 'bg-gray-800 border-gray-600 text-white' : 'border-gray-300'}`}
               />
             </div>
 
@@ -1120,8 +1111,8 @@ export default function FacebookMonitor() {
             <div className="space-y-6">
               {filteredPosts.map((post, index) => (
                 <Card
-                  key={'${post.id}-${index}'}
-                  className={'overflow-hidden shadow-lg border-0 hover:shadow-xl transition-shadow ${darkMode ? 'bg-gray-800' : 'bg-white/90'} backdrop-blur-sm'}
+                  key={`${post.id}-${index}`}
+                  className={`overflow-hidden shadow-lg border-0 hover:shadow-xl transition-shadow ${darkMode ? 'bg-gray-800' : 'bg-white/90'} backdrop-blur-sm`}
                   ref={index === filteredPosts.length - 1 ? lastPostElementRef : null}
                 >
                   <CardContent className="p-6">
@@ -1136,7 +1127,7 @@ export default function FacebookMonitor() {
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <User className="w-4 h-4 text-blue-600" />
-                          <span className={'font-bold text-lg ${darkMode ? 'text-white' : 'text-gray-800'}'}>
+                          <span className={`font-bold text-lg ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                             {post.from?.name || "غير معروف"}
                           </span>
                           
@@ -1201,7 +1192,7 @@ export default function FacebookMonitor() {
 
                           {post.from?.id && (
                             <a
-                              href={'https://facebook.com/${post.from.id}'}
+                              href={`https://facebook.com/${post.from.id}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="flex items-center gap-1 text-blue-600 hover:text-blue-800 hover:underline transition-colors"
@@ -1215,7 +1206,7 @@ export default function FacebookMonitor() {
                     </div>
 
                     <div className="mb-4">
-                      <p className={'leading-relaxed text-lg ${darkMode ? 'text-gray-300' : 'text-gray-800'}'}>
+                      <p className={`leading-relaxed text-lg ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>
                         {post.message || "بدون محتوى نصي"}
                       </p>
                     </div>
@@ -1227,7 +1218,7 @@ export default function FacebookMonitor() {
                             <div key={imgIndex} className="relative group">
                               <img
                                 src={imageUrl || "/placeholder.svg"}
-                                alt={'صورة ${imgIndex + 1}'}
+                                alt={`صورة ${imgIndex + 1}`}
                                 className="w-full h-48 object-cover rounded-lg shadow-md group-hover:shadow-lg transition-shadow cursor-pointer"
                                 onClick={() => window.open(imageUrl, "_blank")}
                               />
@@ -1252,7 +1243,7 @@ export default function FacebookMonitor() {
                               return postData?.groupId.includes(id) || postData?.groupId === id
                             })
                             const postId = post.id.split("_")[1] || post.id
-                            window.open('https://facebook.com/groups/${groupId}/posts/${postId}', "_blank")
+                            window.open(`https://facebook.com/groups/${groupId}/posts/${postId}`, "_blank")
                           }}
                           className="flex items-center gap-2 bg-gradient-to-r from-green-50 to-emerald-50 border-green-200 hover:from-green-100 hover:to-emerald-100 text-green-700"
                         >
@@ -1263,10 +1254,10 @@ export default function FacebookMonitor() {
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            const postUrl = 'https://facebook.com/groups/${groupIds.find((id) => {
+                            const postUrl = `https://facebook.com/groups/${groupIds.find((id) => {
                               const postData = allPostsData.find((p) => p.authorId === post.from?.id)
                               return postData?.groupId.includes(id) || postData?.groupId === id
-                            })}/posts/${post.id.split("_")[1] || post.id}'
+                            })}/posts/${post.id.split("_")[1] || post.id}`
                             navigator.clipboard.writeText(postUrl)
                             setLoadingStatus("📋 تم نسخ رابط المنشور")
                           }}
@@ -1276,7 +1267,7 @@ export default function FacebookMonitor() {
                         </Button>
                       </div>
 
-                      <div className={'text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}'}>
+                      <div className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         معرف المنشور: {post.id}
                       </div>
                     </div>
@@ -1285,9 +1276,9 @@ export default function FacebookMonitor() {
                     {post.comments?.data && post.comments.data.length > 0 && (
                       <>
                         <Separator className="my-4" />
-                        <div className={'rounded-lg p-4 ${darkMode ? 'bg-gray-700' : 'bg-gradient-to-r from-gray-50 to-blue-50'}'}>
+                        <div className={`rounded-lg p-4 ${darkMode ? 'bg-gray-700' : 'bg-gradient-to-r from-gray-50 to-blue-50'}`}>
                           <div className="flex items-center justify-between mb-4">
-                            <h4 className={'font-bold flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}'}>
+                            <h4 className={`font-bold flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                               💬 التعليقات ({post.comments.data.length})
                             </h4>
                             <Button
@@ -1314,15 +1305,15 @@ export default function FacebookMonitor() {
                             <div className="space-y-4">
                               {post.comments.data.map((comment, commentIndex) => (
                                 <div
-                                  key={'${comment.id}-${commentIndex}'}
-                                  className={'rounded-lg p-3 shadow-sm border ${darkMode ? 'bg-gray-600 border-gray-500' : 'bg-white border-gray-100'}'}
+                                  key={`${comment.id}-${commentIndex}`}
+                                  className={`rounded-lg p-3 shadow-sm border ${darkMode ? 'bg-gray-600 border-gray-500' : 'bg-white border-gray-100'}`}
                                 >
                                   <div className="flex items-center justify-between mb-2">
                                     <div className="flex items-center gap-2">
-                                      <span className={'font-semibold text-sm ${darkMode ? 'text-white' : 'text-gray-800'}'}>
+                                      <span className={`font-semibold text-sm ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                                         {comment.from?.name || "مجهول"}
                                       </span>
-                                      <span className={'text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}'}>
+                                      <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                                         🕓 {new Date(comment.created_time).toLocaleString("ar-EG")}
                                       </span>
                                     </div>
@@ -1347,7 +1338,7 @@ export default function FacebookMonitor() {
                                       )}
                                     </div>
                                   </div>
-                                  <p className={'text-sm leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-700'}'}>
+                                  <p className={`text-sm leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                                     {comment.message}
                                   </p>
                                 </div>
@@ -1362,7 +1353,7 @@ export default function FacebookMonitor() {
               ))}
 
               {loadingMore && (
-                <Card className={'shadow-lg border-0 ${darkMode ? 'bg-gray-800' : 'bg-white/90'} backdrop-blur-sm'}>
+                <Card className={`shadow-lg border-0 ${darkMode ? 'bg-gray-800' : 'bg-white/90'} backdrop-blur-sm`}>
                   <CardContent className="text-center py-8">
                     <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
                     <p className={darkMode ? 'text-gray-300' : 'text-gray-600'}>جاري تحميل منشورات أقدم...</p>
@@ -1371,11 +1362,11 @@ export default function FacebookMonitor() {
               )}
 
               {filteredPosts.length === 0 && !loading && (
-                <Card className={'shadow-lg border-0 ${darkMode ? 'bg-gray-800' : 'bg-white/90'} backdrop-blur-sm'}>
+                <Card className={`shadow-lg border-0 ${darkMode ? 'bg-gray-800' : 'bg-white/90'} backdrop-blur-sm`}>
                   <CardContent className="text-center py-12">
                     <div className="text-6xl mb-4">📭</div>
-                    <p className={'text-lg ${darkMode ? 'text-gray-400' : 'text-gray-500'}'}>لا توجد منشورات للعرض</p>
-                    <p className={'text-sm mt-2 ${darkMode ? 'text-gray-500' : 'text-gray-400'}'}>
+                    <p className={`text-lg ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>لا توجد منشورات للعرض</p>
+                    <p className={`text-sm mt-2 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                       جرب تحميل المنشورات أو تغيير كلمة البحث
                     </p>
                   </CardContent>
@@ -1389,39 +1380,39 @@ export default function FacebookMonitor() {
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card className={'${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg'}>
+              <Card className={`${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
                 <CardContent className="p-6 text-center">
                   <div className="text-3xl font-bold text-blue-600">{analytics.totalPosts}</div>
-                  <div className={'text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}'}>إجمالي المنشورات</div>
+                  <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>إجمالي المنشورات</div>
                 </CardContent>
               </Card>
 
-              <Card className={'${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg'}>
+              <Card className={`${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
                 <CardContent className="p-6 text-center">
                   <div className="text-3xl font-bold text-green-600">{analytics.highScorePosts}</div>
-                  <div className={'text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}'}>منشورات عالية الجودة</div>
+                  <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>منشورات عالية الجودة</div>
                 </CardContent>
               </Card>
 
-              <Card className={'${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg'}>
+              <Card className={`${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
                 <CardContent className="p-6 text-center">
                   <div className="text-3xl font-bold text-purple-600">{analytics.totalCustomers}</div>
-                  <div className={'text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}'}>عملاء محتملين</div>
+                  <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>عملاء محتملين</div>
                 </CardContent>
               </Card>
 
-              <Card className={'${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg'}>
+              <Card className={`${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
                 <CardContent className="p-6 text-center">
                   <div className="text-3xl font-bold text-orange-600">{analytics.todayPosts}</div>
-                  <div className={'text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}'}>منشورات اليوم</div>
+                  <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>منشورات اليوم</div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Keyword Performance */}
-            <Card className={'${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg'}>
+            <Card className={`${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
               <CardHeader>
-                <CardTitle className={'flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}'}>
+                <CardTitle className={`flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                   <Target className="w-5 h-5" />
                   أداء الكلمات المفتاحية
                 </CardTitle>
@@ -1434,16 +1425,16 @@ export default function FacebookMonitor() {
                         <Badge variant="outline" className="w-8 h-8 rounded-full flex items-center justify-center">
                           {index + 1}
                         </Badge>
-                        <span className={'font-medium ${darkMode ? 'text-white' : 'text-gray-800'}'}>{stat.keyword}</span>
+                        <span className={`font-medium ${darkMode ? 'text-white' : 'text-gray-800'}`}>{stat.keyword}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className={'w-32 h-2 rounded-full ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}'}>
+                        <div className={`w-32 h-2 rounded-full ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
                           <div
                             className="h-2 bg-blue-500 rounded-full"
-                            style={{ width: '${Math.min((stat.count / analytics.totalPosts) * 100, 100)}%' }}
+                            style={{ width: `${Math.min((stat.count / analytics.totalPosts) * 100, 100)}%` }}
                           />
                         </div>
-                        <span className={'text-sm font-bold ${darkMode ? 'text-gray-300' : 'text-gray-600'}'}>
+                        <span className={`text-sm font-bold ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                           {stat.count}
                         </span>
                       </div>
@@ -1457,7 +1448,7 @@ export default function FacebookMonitor() {
           {/* Customers Tab */}
           <TabsContent value="customers" className="space-y-6">
             <div className="flex items-center justify-between">
-              <h2 className={'text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}'}>إدارة العملاء المحتملين</h2>
+              <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>إدارة العملاء المحتملين</h2>
               <Button onClick={downloadCustomersReport} className="flex items-center gap-2">
                 <Download className="w-4 h-4" />
                 تحميل تقرير العملاء
@@ -1466,7 +1457,7 @@ export default function FacebookMonitor() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {['interested', 'contacted', 'converted', 'not_interested'].map((status) => (
-                <Card key={status} className={'${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg'}>
+                <Card key={status} className={`${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
                   <CardContent className="p-4 text-center">
                     <div className="flex items-center justify-center mb-2">
                       {status === 'interested' && <AlertCircle className="w-6 h-6 text-yellow-500" />}
@@ -1477,7 +1468,7 @@ export default function FacebookMonitor() {
                     <div className="text-2xl font-bold">
                       {customers.filter(c => c.status === status).length}
                     </div>
-                    <div className={'text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}'}>
+                    <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                       {status === 'interested' && 'مهتم'}
                       {status === 'contacted' && 'تم التواصل'}
                       {status === 'converted' && 'تم التحويل'}
@@ -1489,7 +1480,7 @@ export default function FacebookMonitor() {
             </div>
 
             {/* Customers List */}
-            <Card className={'${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg'}>
+            <Card className={`${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
               <CardHeader>
                 <CardTitle className={darkMode ? 'text-white' : 'text-gray-800'}>قائمة العملاء</CardTitle>
               </CardHeader>
@@ -1498,9 +1489,9 @@ export default function FacebookMonitor() {
                   {customers.sort((a, b) => b.score - a.score).slice(0, 20).map((customer) => (
                     <div
                       key={customer.id}
-                      className={'p-4 rounded-lg border cursor-pointer hover:shadow-md transition-shadow ${
+                      className={`p-4 rounded-lg border cursor-pointer hover:shadow-md transition-shadow ${
                         darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'
-                      }'}
+                      }`}
                       onClick={() => setSelectedCustomer(customer)}
                     >
                       <div className="flex items-center justify-between">
@@ -1511,10 +1502,10 @@ export default function FacebookMonitor() {
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <div className={'font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}'}>
+                            <div className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                               {customer.name}
                             </div>
-                            <div className={'text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}'}>
+                            <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                               {customer.phone || 'لا يوجد رقم'}
                             </div>
                           </div>
@@ -1547,10 +1538,10 @@ export default function FacebookMonitor() {
           {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-6">
             {/* Keyword Filter Management */}
-            <Card className={'${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg'}>
+            <Card className={`${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className={'text-lg flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}'}>
+                  <CardTitle className={`text-lg flex items-center gap-2 ${darkMode ? 'text-white' : 'text-gray-800'}`}>
                     🎯 إدارة الكلمات المفتاحية
                     <Badge variant={filterEnabled ? "default" : "secondary"}>{filterEnabled ? "مفعل" : "معطل"}</Badge>
                   </CardTitle>
@@ -1570,7 +1561,7 @@ export default function FacebookMonitor() {
               </CardHeader>
               <CardContent>
                 <div className="mb-4">
-                  <p className={'text-sm mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}'}>
+                  <p className={`text-sm mb-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     الكلمات المفتاحية الحالية ({keywordFilters.length}):
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -1630,17 +1621,17 @@ export default function FacebookMonitor() {
             </Card>
 
             {/* App Settings */}
-            <Card className={'${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg'}>
+            <Card className={`${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
               <CardHeader>
                 <CardTitle className={darkMode ? 'text-white' : 'text-gray-800'}>إعدادات التطبيق</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className={'text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}'}>
+                    <Label className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       الوضع الليلي
                     </Label>
-                    <p className={'text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}'}>
+                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       تفعيل الوضع الليلي لراحة العينين
                     </p>
                   </div>
@@ -1649,10 +1640,10 @@ export default function FacebookMonitor() {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className={'text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}'}>
+                    <Label className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       الإشعارات
                     </Label>
-                    <p className={'text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}'}>
+                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       تلقي إشعارات للمنشورات المهمة
                     </p>
                   </div>
@@ -1661,10 +1652,10 @@ export default function FacebookMonitor() {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className={'text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}'}>
+                    <Label className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       التحديث التلقائي
                     </Label>
-                    <p className={'text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}'}>
+                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       تحديث المنشورات تلقائياً كل 5 دقائق
                     </p>
                   </div>
@@ -1673,10 +1664,10 @@ export default function FacebookMonitor() {
 
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className={'text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}'}>
+                    <Label className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       البحث المتقدم (Regex)
                     </Label>
-                    <p className={'text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}'}>
+                    <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       استخدام التعبيرات النمطية في البحث
                     </p>
                   </div>
@@ -1687,7 +1678,7 @@ export default function FacebookMonitor() {
 
             {/* Statistics */}
             {posts.length > 0 && (
-              <Card className={'${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg'}>
+              <Card className={`${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg`}>
                 <CardHeader>
                   <CardTitle className={darkMode ? 'text-white' : 'text-gray-800'}>إحصائيات التطبيق</CardTitle>
                 </CardHeader>
