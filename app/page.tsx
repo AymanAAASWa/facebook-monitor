@@ -638,7 +638,8 @@ export default function FacebookMonitor() {
         row.authorId,
         "",
         score.toString(),
-      ].map((val) => '"${val.toString().replace(/"/g, '""')}"')
+      ].map((val) => `"${val.toString().replace(/"/g, '""')}"`)
+
       csvRows.push(values.join(","))
     })
 
