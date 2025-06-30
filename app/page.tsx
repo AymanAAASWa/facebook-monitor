@@ -881,6 +881,8 @@ export default function FacebookMonitor() {
   return (
     <div className={'min-h-screen p-4 transition-colors ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 to-indigo-100'}'} dir="rtl">
       <div className="max-w-7xl mx-auto">
+	  <p>تجربة</p>
+
         {/* Header */}
         <Card className={'mb-6 shadow-lg border-0 ${darkMode ? 'bg-gray-800' : 'bg-white/80'} backdrop-blur-sm'}>
           <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
