@@ -654,7 +654,8 @@ export default function FacebookMonitor() {
         row.authorId,
         row.postId,
         "0",
-      ].map((val) => '"${val.toString().replace(/"/g, '""')}"')
+      ].map((val) => `"${val.toString().replace(/"/g, '""')}"`)
+
       csvRows.push(values.join(","))
     })
 
