@@ -880,7 +880,6 @@ export default function FacebookMonitor() {
 
   return (
     <div className={`min-h-screen p-4 transition-colors ${darkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-blue-50 to-indigo-100'}`} dir="rtl">
-            {/* Header */}
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <Card className={`mb-6 shadow-lg border-0 ${darkMode ? 'bg-gray-800' : 'bg-white/80'} backdrop-blur-sm`}>
@@ -1319,7 +1318,7 @@ export default function FacebookMonitor() {
                                       </span>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                      <Phone className="w-3 h-3 text-red-500" />
+                                      <Phone className="w-3 h-3 text-red-500" />\
                                       {allCommentsData.find((c) => c.commentId === comment.id)?.phone === "اضغط للبحث" ? (
                                         <Button
                                           variant="outline"
