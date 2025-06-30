@@ -1712,5 +1712,5 @@ export default function FacebookMonitor() {
         </Tabs>
       </div>
     </div>
-  );
+  )
 }
